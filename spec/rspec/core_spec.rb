@@ -79,7 +79,7 @@ RSpec.describe RSpec do
            "puts RSpec::Expectations.name"
 
     result = `ruby -e '#{code}'`.chomp
-    expect(result.split("\n")).to eq(%w[ RSpec::Mocks RSpec::Expectations ])
+    expect(result.split("\n")).to include("RSpec::Mocks", "RSpec::Expectations")
   end
 
   it 'correctly raises an error when an invalid const is referenced' do
