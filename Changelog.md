@@ -24,6 +24,11 @@ Breaking Changes for 3.0.0:
 * Remove support for deprecated `--configure` CLI option. (Myron Marston)
 * Remove support for deprecated `RSpec::Core::RakeTask#spec_opts=`.
   (Myron Marston)
+* A top-level `pending` block or `:pending` metadata now behaves the same as
+  a `pending` block inside an example: it will be executed and cause a failure
+  if it passes, otherwise it will be pending if it fails. The old "never run"
+  behaviour is still available via the `xit` method or `:skip` metadata option.
+  (Xavier Shay)
 
 Enhancements:
 

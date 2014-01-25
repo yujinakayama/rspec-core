@@ -50,18 +50,51 @@ module RSpec
         alias_method :describes, :described_class
 
         # @private
+        def self.wrap_pending_block(pending, block)
+          reason = if String === pending
+            pending
+          else
+            RSpec::Core::Pending::NO_REASON_GIVEN
+          end
+
+          lambda {|*args|
+            pending(reason) do
+              if block
+                instance_exec(&block)
+              else
+                fail
+              end
+            end
+          }
+        end
+
+        # @private
         # @macro [attach] define_example_method
         #   @param [String] name
         #   @param [Hash] extra_options
         #   @param [Block] implementation
         #   @yield [Example] the example object
         def self.define_example_method(name, extra_options={})
+          this = self
           define_method(name) do |*all_args, &block|
             desc, *args = *all_args
             options = Metadata.build_hash_from(args)
             options.update(:skip => RSpec::Core::Pending::NOT_YET_IMPLEMENTED) unless block
             options.update(extra_options)
-            examples << RSpec::Core::Example.new(self, desc, options, block)
+
+            pending = if name == :pending
+              desc || options[:pending]
+            else
+              options[:pending]
+            end
+
+            callback = if pending
+              this.wrap_pending_block(pending, block)
+            else
+              block
+            end
+
+            examples << RSpec::Core::Example.new(self, desc, options, callback)
             examples.last
           end
         end
@@ -102,7 +135,7 @@ module RSpec
 
         # Shortcut to define an example with :pending => true
         # @see example
-        define_example_method :pending,  :skip => true
+        define_example_method :pending,  :pending => true
         # Shortcut to define an example with :pending => 'Temporarily disabled with xexample'
         # @see example
         define_example_method :xexample, :skip => 'Temporarily disabled with xexample'

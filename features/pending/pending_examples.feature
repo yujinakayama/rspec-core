@@ -77,6 +77,22 @@ Feature: pending examples
     And the output should contain "Expected pending 'something else getting finished' to fail. No Error was raised."
     And the output should contain "pending_with_passing_block_spec.rb:3"
 
+  Scenario: pending any arbitrary reason, with a top-level block that passes
+    Given a file named "pending_with_passing_block_spec.rb" with:
+      """ruby
+      describe "an example" do
+        pending("something else getting finished") do
+          expect(1).to eq(1)
+        end
+      end
+      """
+    When I run `rspec pending_with_passing_block_spec.rb`
+    Then the exit status should not be 0
+    And the output should contain "1 example, 1 failure"
+    And the output should contain "FIXED"
+    And the output should contain "Expected pending 'something else getting finished' to fail. No Error was raised."
+    And the output should contain "pending_with_passing_block_spec.rb:2"
+
   Scenario: temporarily pending by prefixing `it`, `specify`, or `example` with an x
     Given a file named "temporarily_pending_spec.rb" with:
       """ruby
@@ -138,7 +154,7 @@ Feature: pending examples
           expect(3+4).to eq(7)
         end
         pending do
-          expect("string".reverse).to eq("gnirts")
+          fail
         end
       end
       """

@@ -11,10 +11,21 @@ RSpec.describe "an example" do
     end
   end
 
+  matcher :be_skipped_with do |message|
+    match do |example|
+      example.skipped? && example.metadata[:execution_result][:pending_message] == message
+    end
+
+    failure_message_for_should do |example|
+      "expected: example skipped with #{message.inspect}\n     got: #{example.metadata[:execution_result][:pending_message].inspect}"
+    end
+  end
+
   context "declared pending with metadata" do
     it "uses the value assigned to :pending as the message" do
       group = RSpec::Core::ExampleGroup.describe('group') do
         example "example", :pending => 'just because' do
+          fail
         end
       end
       example = group.examples.first
@@ -25,6 +36,7 @@ RSpec.describe "an example" do
     it "sets the message to 'No reason given' if :pending => true" do
       group = RSpec::Core::ExampleGroup.describe('group') do
         example "example", :pending => true do
+          fail
         end
       end
       example = group.examples.first
@@ -40,7 +52,7 @@ RSpec.describe "an example" do
       end
       example = group.examples.first
       example.run(group.new, double.as_null_object)
-      expect(example).to be_pending_with('Not yet implemented')
+      expect(example).to be_skipped_with('Not yet implemented')
     end
   end
 

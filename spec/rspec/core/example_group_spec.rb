@@ -888,11 +888,11 @@ module RSpec::Core
       end
     end
 
-    %w[pending xit xspecify xexample].each do |method_name|
+    %w[pending].each do |method_name|
       describe "::#{method_name}" do
         before do
           @group = ExampleGroup.describe
-          @group.send(method_name, "is pending") { }
+          @group.send(method_name) { fail }
         end
 
         it "generates a pending example" do
@@ -900,12 +900,26 @@ module RSpec::Core
           expect(@group.examples.first).to be_pending
         end
 
-        it "sets the pending message", :if => method_name == 'pending' do
+        it "sets the pending message" do
           @group.run
           expect(@group.examples.first.metadata[:execution_result][:pending_message]).to eq(RSpec::Core::Pending::NO_REASON_GIVEN)
         end
+      end
+    end
 
-        it "sets the pending message", :unless => method_name == 'pending' do
+    %w[xit xspecify xexample].each do |method_name|
+      describe "::#{method_name}" do
+        before do
+          @group = ExampleGroup.describe
+          @group.send(method_name, "is pending") { }
+        end
+
+        it "generates a skipped example" do
+          @group.run
+          expect(@group.examples.first).to be_skipped
+        end
+
+        it "sets the pending message" do
           @group.run
           expect(@group.examples.first.metadata[:execution_result][:pending_message]).to eq("Temporarily disabled with #{method_name}")
         end
