@@ -59,7 +59,7 @@ module RSpec
           define_method(name) do |*all_args, &block|
             desc, *args = *all_args
             options = Metadata.build_hash_from(args)
-            options.update(:pending => RSpec::Core::Pending::NOT_YET_IMPLEMENTED) unless block
+            options.update(:skip => RSpec::Core::Pending::NOT_YET_IMPLEMENTED) unless block
             options.update(extra_options)
             examples << RSpec::Core::Example.new(self, desc, options, block)
             examples.last
@@ -102,16 +102,16 @@ module RSpec
 
         # Shortcut to define an example with :pending => true
         # @see example
-        define_example_method :pending,  :pending => true
+        define_example_method :pending,  :skip => true
         # Shortcut to define an example with :pending => 'Temporarily disabled with xexample'
         # @see example
-        define_example_method :xexample, :pending => 'Temporarily disabled with xexample'
+        define_example_method :xexample, :skip => 'Temporarily disabled with xexample'
         # Shortcut to define an example with :pending => 'Temporarily disabled with xit'
         # @see example
-        define_example_method :xit,      :pending => 'Temporarily disabled with xit'
+        define_example_method :xit,      :skip => 'Temporarily disabled with xit'
         # Shortcut to define an example with :pending => 'Temporarily disabled with xspecify'
         # @see example
-        define_example_method :xspecify, :pending => 'Temporarily disabled with xspecify'
+        define_example_method :xspecify, :skip => 'Temporarily disabled with xspecify'
 
         # Works like `alias_method :name, :example` with the added benefit of
         # assigning default metadata to the generated example.

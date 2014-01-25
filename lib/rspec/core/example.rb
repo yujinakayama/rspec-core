@@ -41,7 +41,11 @@ module RSpec
         keys.each { |key| define_method(key) { @metadata[key] } }
       end
 
-      delegate_to_metadata :full_description, :execution_result, :file_path, :pending, :location
+      delegate_to_metadata :full_description, :execution_result, :file_path, :location, :skip
+
+      def pending
+        @metadata.fetch(:pending, skip)
+      end
 
       # Returns the string submitted to `example` or its aliases (e.g.
       # `specify`, `it`, etc).  If no string is submitted (e.g. `it { is_expected.to
@@ -94,7 +98,11 @@ module RSpec
         @example_group_class
       end
 
-      alias_method :pending?, :pending
+      def skipped?
+        pending || skip
+      end
+
+      alias_method :pending?, :skipped?
 
       # @api private
       # instance_evals the block passed to the constructor in the context of
@@ -107,7 +115,7 @@ module RSpec
         start(reporter)
 
         begin
-          unless pending || RSpec.configuration.dry_run?
+          unless skipped? || RSpec.configuration.dry_run?
             with_around_each_hooks do
               begin
                 run_before_each
@@ -260,7 +268,7 @@ An error occurred #{context}
           record_finished 'pending', :pending_message => @pending_declared_in_example
           reporter.example_pending self
           true
-        elsif pending
+        elsif skipped?
           record_finished 'pending', :pending_message => String === pending ? pending : Pending::NO_REASON_GIVEN
           reporter.example_pending self
           true
