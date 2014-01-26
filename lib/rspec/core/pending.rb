@@ -71,7 +71,7 @@ module RSpec
       #       it "does something", :pending => "something else getting finished" do
       #         # ...
       #       end
-      def pending(*args)
+      def pending(*args, &block)
         current_example = RSpec.current_example
 
         return self.class.before(:each) { pending(*args) } unless current_example
@@ -89,7 +89,7 @@ module RSpec
         if block_given?
           begin
             no_failure = false
-            yield
+            call_pending_block(&block)
             no_failure = true
             current_example.metadata[:pending] = false
           rescue Exception => e
@@ -102,6 +102,14 @@ module RSpec
           end
         end
         raise PendingDeclaredInExample.new(message)
+      end
+
+      def call_pending_block(&block)
+        base = lambda { block.call }
+        stack = RSpec.configuration.pending_executors.inject(base) do |a, v|
+          lambda { v.call(a) }
+        end
+        stack.call
       end
     end
   end

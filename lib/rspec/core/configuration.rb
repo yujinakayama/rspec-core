@@ -1070,6 +1070,13 @@ module RSpec
         self.deprecation_stream = Formatters::DeprecationFormatter::RaiseErrorStream.new
       end
 
+      # @private
+      #
+      # Enables extensions to affect how pending blocks are run.
+      def pending_executors
+        @pending_executors ||= []
+      end
+
     private
 
       def get_files_to_run(paths)
