@@ -84,8 +84,7 @@ module RSpec
         # :pending metadata will also be re-directed here.
         #
         # @see RSpec::Core::Pending#pending
-        def pending(*all_args, &block)
-          desc, *args = *all_args
+        def pending(desc = nil, *args, &block)
           options = Metadata.build_hash_from(args)
 
           if String === options[:pending]
