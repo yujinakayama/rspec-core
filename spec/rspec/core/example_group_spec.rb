@@ -888,22 +888,20 @@ module RSpec::Core
       end
     end
 
-    %w[pending].each do |method_name|
-      describe "::#{method_name}" do
-        before do
-          @group = ExampleGroup.describe
-          @group.send(method_name) { fail }
-        end
+    describe "::pending" do
+      before do
+        @group = ExampleGroup.describe
+        @group.pending { fail }
+      end
 
-        it "generates a pending example" do
-          @group.run
-          expect(@group.examples.first).to be_pending
-        end
+      it "generates a pending example" do
+        @group.run
+        expect(@group.examples.first).to be_pending
+      end
 
-        it "sets the pending message" do
-          @group.run
-          expect(@group.examples.first.metadata[:execution_result][:pending_message]).to eq(RSpec::Core::Pending::NO_REASON_GIVEN)
-        end
+      it "sets the pending message" do
+        @group.run
+        expect(@group.examples.first.metadata[:execution_result][:pending_message]).to eq(RSpec::Core::Pending::NO_REASON_GIVEN)
       end
     end
 
