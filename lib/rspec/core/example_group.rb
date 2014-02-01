@@ -57,15 +57,10 @@ module RSpec
             RSpec::Core::Pending::NO_REASON_GIVEN
           end
 
-          lambda {|*args|
-            pending(reason) do
-              if block
-                instance_exec(&block)
-              else
-                fail
-              end
-            end
-          }
+          # This will fail if no block is provided, which is effectively the
+          # same as failing the example so it will be marked correctly as
+          # pending.
+          Proc.new { pending(reason) { instance_exec(&block) } }
         end
 
         # @private
