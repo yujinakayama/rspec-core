@@ -50,48 +50,56 @@ module RSpec
         alias_method :describes, :described_class
 
         # @private
-        def self.wrap_pending_block(pending, block)
-          reason = if String === pending
-            pending
-          else
-            RSpec::Core::Pending::NO_REASON_GIVEN
-          end
-
-          # This will fail if no block is provided, which is effectively the
-          # same as failing the example so it will be marked correctly as
-          # pending.
-          Proc.new { pending(reason) { instance_exec(&block) } }
-        end
-
-        # @private
         # @macro [attach] define_example_method
         #   @param [String] name
         #   @param [Hash] extra_options
         #   @param [Block] implementation
         #   @yield [Example] the example object
         def self.define_example_method(name, extra_options={})
-          this = self
           define_method(name) do |*all_args, &block|
             desc, *args = *all_args
             options = Metadata.build_hash_from(args)
             options.update(:skip => RSpec::Core::Pending::NOT_YET_IMPLEMENTED) unless block
             options.update(extra_options)
 
-            pending = if name == :pending
-              desc || options[:pending]
+            if options[:pending]
+              # Pending examples behave so differently that we don't try to
+              # combine their logic into this method. Instead, delegate to a
+              # completely separate method.
+              pending(
+                desc,
+                options.merge(:pending => options[:pending]),
+                &block
+              )
             else
-              options[:pending]
+              examples << RSpec::Core::Example.new(self, desc, options, block)
+              examples.last
             end
-
-            callback = if pending
-              this.wrap_pending_block(pending, block)
-            else
-              block
-            end
-
-            examples << RSpec::Core::Example.new(self, desc, options, callback)
-            examples.last
           end
+        end
+
+        # Shortcut to define a pending example. Any example definition with
+        # :pending metadata will also be re-directed here.
+        #
+        # @see RSpec::Core::Pending#pending
+        def pending(*all_args, &block)
+          desc, *args = *all_args
+          options = Metadata.build_hash_from(args)
+
+          if String === options[:pending]
+            reason = options[:pending]
+          else
+            options[:pending] = true
+            reason = RSpec::Core::Pending::NO_REASON_GIVEN
+          end
+
+          # This will fail if no block is provided, which is effectively the
+          # same as failing the example so it will be marked correctly as
+          # pending.
+          callback = Proc.new { pending(reason) { instance_exec(&block) } }
+
+          examples << RSpec::Core::Example.new(self, desc, options, callback)
+          examples.last
         end
 
         # Defines an example within a group.
@@ -128,16 +136,13 @@ module RSpec
         # @see example
         define_example_method :fit,     :focused => true, :focus => true
 
-        # Shortcut to define an example with :pending => true
-        # @see example
-        define_example_method :pending,  :pending => true
-        # Shortcut to define an example with :pending => 'Temporarily disabled with xexample'
+        # Shortcut to define an example with :skip => 'Temporarily disabled with xexample'
         # @see example
         define_example_method :xexample, :skip => 'Temporarily disabled with xexample'
-        # Shortcut to define an example with :pending => 'Temporarily disabled with xit'
+        # Shortcut to define an example with :skip => 'Temporarily disabled with xit'
         # @see example
         define_example_method :xit,      :skip => 'Temporarily disabled with xit'
-        # Shortcut to define an example with :pending => 'Temporarily disabled with xspecify'
+        # Shortcut to define an example with :skip => 'Temporarily disabled with xspecify'
         # @see example
         define_example_method :xspecify, :skip => 'Temporarily disabled with xspecify'
 
