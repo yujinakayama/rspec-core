@@ -959,7 +959,7 @@ module RSpec::Core
           expect(extract_execution_results(group)).to match([
             a_hash_including(
               :status => "pending",
-              :pending_message => "Temporarily disabled with #{method_name}"
+              :pending_message => "Temporarily skipped with #{method_name}"
             )
           ] * 2)
         end

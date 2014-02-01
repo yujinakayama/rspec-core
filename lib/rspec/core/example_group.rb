@@ -306,11 +306,11 @@ module RSpec
 
       # Shortcut to temporarily make an example group pending.
       # @see example_group
-      alias_example_group_to :xdescribe, :pending => "Temporarily disabled with xdescribe"
+      alias_example_group_to :xdescribe, :skip => "Temporarily skipped with xdescribe"
 
       # Shortcut to temporarily make an example group pending.
       # @see example_group
-      alias_example_group_to :xcontext,  :pending => "Temporarily disabled with xcontext"
+      alias_example_group_to :xcontext,  :skip => "Temporarily skipped with xcontext"
 
       # Shortcut to define an example group with `:focus` => true
       # @see example_group
