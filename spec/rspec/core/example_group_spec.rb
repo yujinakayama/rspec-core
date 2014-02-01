@@ -905,6 +905,23 @@ module RSpec::Core
       end
     end
 
+    describe "::skip" do
+      before do
+        @group = ExampleGroup.describe
+        @group.skip("skip this") { }
+      end
+
+      it "generates a skipped example" do
+        @group.run
+        expect(@group.examples.first).to be_skipped
+      end
+
+      it "sets the pending message" do
+        @group.run
+        expect(@group.examples.first.metadata[:execution_result][:pending_message]).to eq(RSpec::Core::Pending::NO_REASON_GIVEN)
+      end
+    end
+
     %w[xit xspecify xexample].each do |method_name|
       describe "::#{method_name}" do
         before do

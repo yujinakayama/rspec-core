@@ -145,6 +145,9 @@ module RSpec
         # Shortcut to define an example with :skip => 'Temporarily skipped with xspecify'
         # @see example
         define_example_method :xspecify, :skip => 'Temporarily skipped with xspecify'
+        # Shortcut to define an example with :skip => true
+        # @see example
+        define_example_method :skip, :skip => true
 
         # Works like `alias_method :name, :example` with the added benefit of
         # assigning default metadata to the generated example.

@@ -109,7 +109,26 @@ Feature: pending examples
     And the output should contain "Expected pending 'unimplemented' to fail. No Error was raised."
     And the output should contain "pending_with_passing_block_spec.rb:2"
 
-  Scenario: temporarily pending by prefixing `it`, `specify`, or `example` with an x
+  Scenario: skipping using `skip`
+    Given a file named "skipped_spec.rb" with:
+      """ruby
+      describe "an example" do
+        skip "is skipped" do
+        end
+      end
+      """
+    When I run `rspec skipped_spec.rb`
+    Then the exit status should be 0
+    And the output should contain "1 example, 0 failures, 1 pending"
+    And the output should contain:
+      """
+      Pending:
+        an example is skipped
+          # No reason given
+          # ./skipped_spec.rb:2
+      """
+
+  Scenario: temporarily skipping by prefixing `it`, `specify`, or `example` with an x
     Given a file named "temporarily_pending_spec.rb" with:
       """ruby
       describe "an example" do
