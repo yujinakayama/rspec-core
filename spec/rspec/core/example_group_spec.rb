@@ -996,6 +996,33 @@ module RSpec::Core
       end
     end
 
+    describe "setting pending metadata in parent" do
+      def extract_execution_results(group)
+        group.examples.map do |ex|
+          ex.metadata.fetch(:execution_result)
+        end
+      end
+
+      it 'marks every example as pending' do
+        group = ExampleGroup.describe(:pending => true) do
+          it("passes") { }
+          it("fails", :pending => 'unimplemented')  { fail }
+        end
+        group.run
+
+        expect(extract_execution_results(group)).to match([
+          a_hash_including(
+            :status => "failed",
+            :pending_message => "No reason given"
+          ),
+          a_hash_including(
+            :status => "pending",
+            :pending_message => "unimplemented"
+          )
+        ])
+      end
+    end
+
     describe "adding examples" do
 
       it "allows adding an example using 'it'" do

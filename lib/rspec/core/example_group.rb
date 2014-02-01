@@ -62,13 +62,15 @@ module RSpec
             options.update(:skip => RSpec::Core::Pending::NOT_YET_IMPLEMENTED) unless block
             options.update(extra_options)
 
-            if options[:pending]
+            pending_metadata = options[:pending] || metadata[:pending]
+
+            if pending_metadata
               # Pending examples behave so differently that we don't try to
               # combine their logic into this method. Instead, delegate to a
               # completely separate method.
               pending(
                 desc,
-                options.merge(:pending => options[:pending]),
+                options.merge(:pending => pending_metadata),
                 &block
               )
             else
