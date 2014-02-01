@@ -921,7 +921,7 @@ module RSpec::Core
 
         it "sets the pending message" do
           @group.run
-          expect(@group.examples.first.metadata[:execution_result][:pending_message]).to eq("Temporarily disabled with #{method_name}")
+          expect(@group.examples.first.metadata[:execution_result][:pending_message]).to eq("Temporarily skipped with #{method_name}")
         end
       end
     end

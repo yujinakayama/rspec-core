@@ -77,7 +77,7 @@ Feature: pending examples
     And the output should contain "Expected pending 'something else getting finished' to fail. No Error was raised."
     And the output should contain "pending_with_passing_block_spec.rb:3"
 
-  Scenario: pending any arbitrary reason, with a top-level block that passes
+  Scenario: pending for an example that is currently passing
     Given a file named "pending_with_passing_block_spec.rb" with:
       """ruby
       describe "an example" do
@@ -114,13 +114,13 @@ Feature: pending examples
       """
       Pending:
         an example is pending using xit
-          # Temporarily disabled with xit
+          # Temporarily skipped with xit
           # ./temporarily_pending_spec.rb:2
         an example is pending using xspecify
-          # Temporarily disabled with xspecify
+          # Temporarily skipped with xspecify
           # ./temporarily_pending_spec.rb:5
         an example is pending using xexample
-          # Temporarily disabled with xexample
+          # Temporarily skipped with xexample
           # ./temporarily_pending_spec.rb:8
       """
 

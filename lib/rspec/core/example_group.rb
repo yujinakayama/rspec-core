@@ -136,15 +136,15 @@ module RSpec
         # @see example
         define_example_method :fit,     :focused => true, :focus => true
 
-        # Shortcut to define an example with :skip => 'Temporarily disabled with xexample'
+        # Shortcut to define an example with :skip => 'Temporarily skipped with xexample'
         # @see example
-        define_example_method :xexample, :skip => 'Temporarily disabled with xexample'
-        # Shortcut to define an example with :skip => 'Temporarily disabled with xit'
+        define_example_method :xexample, :skip => 'Temporarily skipped with xexample'
+        # Shortcut to define an example with :skip => 'Temporarily skipped with xit'
         # @see example
-        define_example_method :xit,      :skip => 'Temporarily disabled with xit'
-        # Shortcut to define an example with :skip => 'Temporarily disabled with xspecify'
+        define_example_method :xit,      :skip => 'Temporarily skipped with xit'
+        # Shortcut to define an example with :skip => 'Temporarily skipped with xspecify'
         # @see example
-        define_example_method :xspecify, :skip => 'Temporarily disabled with xspecify'
+        define_example_method :xspecify, :skip => 'Temporarily skipped with xspecify'
 
         # Works like `alias_method :name, :example` with the added benefit of
         # assigning default metadata to the generated example.
