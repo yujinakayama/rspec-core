@@ -62,31 +62,23 @@ module RSpec
             options.update(:skip => RSpec::Core::Pending::NOT_YET_IMPLEMENTED) unless block
             options.update(extra_options)
 
+            # Metadata inheritance normally happens in `Example#initialize`,
+            # but for `:pending` specifically we need it earlier.
             pending_metadata = options[:pending] || metadata[:pending]
 
             if pending_metadata
-              # Pending examples behave so differently that we don't try to
-              # combine their logic into this method. Instead, delegate to a
-              # completely separate method.
-              pending(
-                desc,
+              options, block = ExampleGroup.pending_metadata_and_block_for(
                 options.merge(:pending => pending_metadata),
-                &block
+                block
               )
-            else
-              examples << RSpec::Core::Example.new(self, desc, options, block)
-              examples.last
             end
+
+            examples << RSpec::Core::Example.new(self, desc, options, block)
+            examples.last
           end
         end
 
-        # Shortcut to define a pending example. Any example definition with
-        # :pending metadata will also be re-directed here.
-        #
-        # @see RSpec::Core::Pending#pending
-        def pending(desc = nil, *args, &block)
-          options = Metadata.build_hash_from(args)
-
+        def pending_metadata_and_block_for(options, block)
           if String === options[:pending]
             reason = options[:pending]
           else
@@ -99,8 +91,7 @@ module RSpec
           # pending.
           callback = Proc.new { pending(reason) { instance_exec(&block) } }
 
-          examples << RSpec::Core::Example.new(self, desc, options, callback)
-          examples.last
+          return options, callback
         end
 
         # Defines an example within a group.
@@ -148,7 +139,10 @@ module RSpec
         define_example_method :xspecify, :skip => 'Temporarily skipped with xspecify'
         # Shortcut to define an example with :skip => true
         # @see example
-        define_example_method :skip, :skip => true
+        define_example_method :skip,     :skip => true
+        # Shortcut to define an example with :pending => true
+        # @see example
+        define_example_method :pending,  :pending => true
 
         # Works like `alias_method :name, :example` with the added benefit of
         # assigning default metadata to the generated example.
