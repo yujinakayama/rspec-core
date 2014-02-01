@@ -1072,7 +1072,10 @@ module RSpec
 
       # @private
       #
-      # Enables extensions to affect how pending blocks are run.
+      # Enables RSpec mocks to hook into the pending lifecycle so that mock
+      # verification is handled correctly. Look there for usage. This could
+      # potentially become a publicly supported API, but right now feels too
+      # narrow and we only have one use case for it.
       def pending_executors
         @pending_executors ||= []
       end
