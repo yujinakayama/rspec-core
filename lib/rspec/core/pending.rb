@@ -1,6 +1,8 @@
 module RSpec
   module Core
     module Pending
+      class SkipDeclaredInExample < StandardError; end
+
       # If Test::Unit is loaed, we'll use its error as baseclass, so that Test::Unit
       # will report unmet RSpec expectations as failures rather than errors.
       begin
@@ -75,15 +77,15 @@ module RSpec
         return self.class.before(:each) { pending(*args) } unless current_example
 
         options = args.last.is_a?(Hash) ? args.pop : {}
-        message = args.first || NO_REASON_GIVEN
 
         if options[:unless] || (options.has_key?(:if) && !options[:if])
           return block_given? ? yield : nil
         end
 
+        set_message! current_example, args
+
         current_example.metadata[:pending] = true
-        current_example.metadata[:execution_result][:pending_message] = message
-        current_example.execution_result[:pending_fixed] = false
+
         if block_given?
           begin
             no_failure = false
@@ -100,6 +102,25 @@ module RSpec
             raise PendingExampleFixedError.new
           end
         end
+      end
+
+      def skip(*args)
+        current_example = RSpec.current_example
+
+        return self.class.before(:each) { skip(*args) } unless current_example
+
+        set_message! current_example, args
+
+        current_example.metadata[:skip] = true
+
+        raise SkipDeclaredInExample
+      end
+
+      def set_message!(example, args)
+        message = args.first || NO_REASON_GIVEN
+
+        example.metadata[:execution_result][:pending_message] = message
+        example.execution_result[:pending_fixed] = false
       end
 
       def call_pending_block(&block)

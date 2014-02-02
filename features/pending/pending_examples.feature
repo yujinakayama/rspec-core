@@ -128,6 +128,26 @@ Feature: pending examples
           # ./skipped_spec.rb:2
       """
 
+  Scenario: skipping using `skip` inside an example
+    Given a file named "skipped_spec.rb" with:
+      """ruby
+      describe "an example" do
+        it "is skipped" do
+          skip
+        end
+      end
+      """
+    When I run `rspec skipped_spec.rb`
+    Then the exit status should be 0
+    And the output should contain "1 example, 0 failures, 1 pending"
+    And the output should contain:
+      """
+      Pending:
+        an example is skipped
+          # No reason given
+          # ./skipped_spec.rb:2
+      """
+
   Scenario: temporarily skipping by prefixing `it`, `specify`, or `example` with an x
     Given a file named "temporarily_pending_spec.rb" with:
       """ruby

@@ -491,6 +491,68 @@ RSpec.describe RSpec::Core::Example, :parent_metadata => 'sample' do
     end
   end
 
+  describe "#skip" do
+    context "in the example" do
+      it "sets the example to skipped" do
+        group = RSpec::Core::ExampleGroup.describe do
+          example { skip }
+        end
+        group.run
+        expect(group.examples.first).to be_skipped
+      end
+
+      it "allows post-example processing in around hooks (see https://github.com/rspec/rspec-core/issues/322)" do
+        blah = nil
+        group = RSpec::Core::ExampleGroup.describe do
+          around do |example|
+            example.run
+            blah = :success
+          end
+          example { skip }
+        end
+        group.run
+        expect(blah).to be(:success)
+      end
+    end
+
+    context "in before(:each)" do
+      it "sets each example to skipped" do
+        group = RSpec::Core::ExampleGroup.describe do
+          before(:each) { skip }
+          example {}
+          example {}
+        end
+        group.run
+        expect(group.examples.first).to be_skipped
+        expect(group.examples.last).to be_skipped
+      end
+    end
+
+    context "in before(:all)" do
+      it "sets each example to pending" do
+        group = RSpec::Core::ExampleGroup.describe do
+          before(:all) { skip }
+          example {}
+          example {}
+        end
+        group.run
+        expect(group.examples.first).to be_skipped
+        expect(group.examples.last).to be_skipped
+      end
+    end
+
+    context "in around(:each)" do
+      it "sets the example to skipped" do
+        group = RSpec::Core::ExampleGroup.describe do
+          around(:each) { skip }
+          example {}
+        end
+        group.run
+        expect(group.examples.first).to be_skipped
+      end
+    end
+  end
+
   describe "timing" do
     it "uses RSpec::Core::Time as to not be affected by changes to time in examples" do
       reporter = double(:reporter).as_null_object

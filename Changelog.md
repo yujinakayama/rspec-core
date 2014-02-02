@@ -46,6 +46,8 @@ Enhancements:
   pending. (Myron Marston)
 * Add `fdescribe` and `fcontext` as shortcuts to focus an example group.
   (Myron Marston)
+* Add `skip` method to not run anymore of an example. (This behaviour is
+  identical to the old `pending` behaviour from RSpec 2.) (Xavier Shay)
 
 Bug Fixes:
 

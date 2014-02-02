@@ -119,6 +119,9 @@ module RSpec
                   result[:pending_fixed] = true
                   raise Pending::PendingExampleFixedError
                 end
+              rescue Pending::SkipDeclaredInExample
+                # no-op, required metadata has already been set by the `skip`
+                # method.
               rescue Exception => e
                 set_exception(e)
               ensure
