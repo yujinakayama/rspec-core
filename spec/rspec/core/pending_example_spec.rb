@@ -61,11 +61,29 @@ RSpec.describe "an example" do
       group = RSpec::Core::ExampleGroup.describe('group') do
         it "does something" do
           pending
+          fail
         end
       end
       example = group.examples.first
       example.run(group.new, double.as_null_object)
       expect(example).to be_pending_with(RSpec::Core::Pending::NO_REASON_GIVEN)
+    end
+
+    it "fails when the rest of the example passes" do
+      called = false
+      group = RSpec::Core::ExampleGroup.describe('group') do
+        it "does something" do
+          pending
+          called = true
+        end
+      end
+
+      example = group.examples.first
+      example.run(group.new, double.as_null_object)
+      expect(called).to eq(true)
+      result = example.metadata[:execution_result]
+      expect(result[:pending_fixed]).to eq(true)
+      expect(result[:status]).to eq("failed")
     end
   end
 

@@ -1,8 +1,6 @@
 module RSpec
   module Core
     module Pending
-      class PendingDeclaredInExample < StandardError; end
-
       # If Test::Unit is loaed, we'll use its error as baseclass, so that Test::Unit
       # will report unmet RSpec expectations as failures rather than errors.
       begin
@@ -94,6 +92,7 @@ module RSpec
             current_example.metadata[:pending] = false
           rescue Exception => e
             current_example.execution_result[:exception] = e
+            raise
           end
 
           if no_failure
@@ -101,7 +100,6 @@ module RSpec
             raise PendingExampleFixedError.new
           end
         end
-        raise PendingDeclaredInExample.new(message)
       end
 
       def call_pending_block(&block)

@@ -80,7 +80,6 @@ module RSpec
         @example_group_class, @options, @example_block = example_group_class, metadata, example_block
         @metadata  = @example_group_class.metadata.for_example(description, metadata)
         @example_group_instance = @exception = nil
-        @pending_declared_in_example = false
       end
 
       # @deprecated access options via metadata instead
@@ -113,8 +112,13 @@ module RSpec
               begin
                 run_before_each
                 @example_group_instance.instance_exec(self, &@example_block)
-              rescue Pending::PendingDeclaredInExample => e
-                @pending_declared_in_example = e.message
+
+                result = metadata[:execution_result]
+
+                if result[:pending_fixed] == false
+                  result[:pending_fixed] = true
+                  raise Pending::PendingExampleFixedError
+                end
               rescue Exception => e
                 set_exception(e)
               ensure
@@ -253,14 +257,16 @@ An error occurred #{context}
       end
 
       def finish(reporter)
-        if @exception
+        pending_message = metadata[:execution_result][:pending_message]
+
+        if pending_message && !metadata[:execution_result][:pending_fixed]
+          record_finished 'pending', :pending_message => pending_message
+          reporter.example_pending self
+          true
+        elsif @exception
           record_finished 'failed', :exception => @exception
           reporter.example_failed self
           false
-        elsif @pending_declared_in_example
-          record_finished 'pending', :pending_message => @pending_declared_in_example
-          reporter.example_pending self
-          true
         elsif skipped?
           record_finished 'pending', :pending_message => String === skip ? skip : Pending::NO_REASON_GIVEN
           reporter.example_pending self
@@ -297,7 +303,6 @@ An error occurred #{context}
         if metadata[:execution_result][:pending_fixed]
           metadata[:execution_result][:pending_fixed] = false
           metadata[:pending] = true
-          @pending_declared_in_example = metadata[:execution_result][:pending_message]
           @exception = nil
         else
           set_exception(e, :dont_print)

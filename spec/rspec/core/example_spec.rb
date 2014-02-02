@@ -119,7 +119,7 @@ RSpec.describe RSpec::Core::Example, :parent_metadata => 'sample' do
         end
 
         it "uses the file and line number of the example if no matcher ran" do
-          example = example_group.example { pending; expect(4).to eq(5) }
+          example = example_group.example { pending; fail }
           example_group.run
           expect(example.description).to match(/example at #{relative_path(__FILE__)}:#{__LINE__ - 2}/)
         end

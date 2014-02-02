@@ -168,6 +168,7 @@ Feature: pending examples
         end
         specify do
           pending
+          fail
         end
       end
       """
