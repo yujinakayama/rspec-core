@@ -1456,24 +1456,5 @@ module RSpec::Core
         expect(value_2).to be(value_1)
       end
     end
-
-    describe '#pending_executors' do
-      it 'enables pending execution to be wrapped' do
-        sentinels = []
-        RSpec.configuration.pending_executors << lambda do |block|
-          sentinels << :before
-          block.call
-          sentinels << :after
-        end
-
-        ExampleGroup.describe 'Group' do
-          pending do
-            sentinels << :during
-          end
-        end.run
-
-        expect(sentinels).to eq([:before, :during, :after])
-      end
-    end
   end
 end

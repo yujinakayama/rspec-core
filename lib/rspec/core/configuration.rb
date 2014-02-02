@@ -1070,16 +1070,6 @@ module RSpec
         self.deprecation_stream = Formatters::DeprecationFormatter::RaiseErrorStream.new
       end
 
-      # @private
-      #
-      # Enables RSpec mocks to hook into the pending lifecycle so that mock
-      # verification is handled correctly. Look there for usage. This could
-      # potentially become a publicly supported API, but right now feels too
-      # narrow and we only have one use case for it.
-      def pending_executors
-        @pending_executors ||= []
-      end
-
     private
 
       def get_files_to_run(paths)

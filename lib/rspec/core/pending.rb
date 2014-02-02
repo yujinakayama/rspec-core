@@ -89,7 +89,7 @@ module RSpec
         if block_given?
           begin
             no_failure = false
-            call_pending_block(&block)
+            block.call
             no_failure = true
             current_example.metadata[:pending] = false
           rescue Exception => e
@@ -121,14 +121,6 @@ module RSpec
 
         example.metadata[:execution_result][:pending_message] = message
         example.execution_result[:pending_fixed] = false
-      end
-
-      def call_pending_block(&block)
-        base = lambda { block.call }
-        stack = RSpec.configuration.pending_executors.inject(base) do |a, v|
-          lambda { v.call(a) }
-        end
-        stack.call
       end
     end
   end
