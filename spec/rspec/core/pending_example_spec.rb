@@ -214,6 +214,23 @@ RSpec.describe "an example" do
       end
     end
 
+    context 'that fails due to both a failed message expectation and a standard failure' do
+      def run_example(*pending_args)
+        super(*pending_args) {
+          expect("foo").to receive("bar")
+          fail
+        }
+      end
+
+      it 'indicates it is pending with the given message' do
+        expect(run_example("just because")).to be_pending_with("just because")
+      end
+
+      it 'indicates the pending block was not fixed' do
+        expect(run_example.metadata[:execution_result][:pending_fixed]).to be false
+      end
+    end
+
     it 'does not verify or teardown mocks multiple times' do
       counts = Hash.new(0)
 
