@@ -888,7 +888,7 @@ module RSpec::Core
       end
     end
 
-    describe "::pending" do
+    describe ".pending" do
       before do
         @group = ExampleGroup.describe
         @group.pending { fail }
@@ -905,7 +905,7 @@ module RSpec::Core
       end
     end
 
-    describe "::skip" do
+    describe ".skip" do
       before do
         @group = ExampleGroup.describe
         @group.skip("skip this") { }
@@ -923,7 +923,7 @@ module RSpec::Core
     end
 
     %w[xit xspecify xexample].each do |method_name|
-      describe "::#{method_name}" do
+      describe ".#{method_name}" do
         before do
           @group = ExampleGroup.describe
           @group.send(method_name, "is pending") { }
