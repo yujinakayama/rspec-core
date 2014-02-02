@@ -41,7 +41,13 @@ module RSpec
         keys.each { |key| define_method(key) { @metadata[key] } }
       end
 
-      delegate_to_metadata :full_description, :execution_result, :file_path, :location, :skip, :pending
+      delegate_to_metadata \
+        :execution_result,
+        :file_path,
+        :full_description,
+        :location,
+        :pending,
+        :skip
 
       # Returns the string submitted to `example` or its aliases (e.g.
       # `specify`, `it`, etc).  If no string is submitted (e.g. `it { is_expected.to
@@ -49,7 +55,9 @@ module RSpec
       # there is one, otherwise returns a message including the location of the
       # example.
       def description
-        description = metadata[:description].to_s.empty? ? "example at #{location}" : metadata[:description]
+        description = metadata[:description].to_s.empty? ?
+          "example at #{location}" :
+          metadata[:description]
         RSpec.configuration.format_docstrings_block.call(description)
       end
 
@@ -271,7 +279,7 @@ An error occurred #{context}
           reporter.example_failed self
           false
         elsif skipped?
-          record_finished 'pending', :pending_message => String === skip ? skip : Pending::NO_REASON_GIVEN
+          record_finished 'pending', :pending_message => skip_message
           reporter.example_pending self
           true
         else
@@ -283,7 +291,11 @@ An error occurred #{context}
 
       def record_finished(status, results={})
         finished_at = RSpec::Core::Time.now
-        record results.merge(:status => status, :finished_at => finished_at, :run_time => (finished_at - execution_result[:started_at]).to_f)
+        record results.merge(
+          :status      => status,
+          :finished_at => finished_at,
+          :run_time    => (finished_at - execution_result[:started_at]).to_f
+        )
       end
 
       def run_before_each
@@ -324,6 +336,14 @@ An error occurred #{context}
 
       def record(results={})
         execution_result.update(results)
+      end
+
+      def skip_message
+        if String === skip
+          skip
+        else
+          Pending::NO_REASON_GIVEN
+        end
       end
     end
   end
