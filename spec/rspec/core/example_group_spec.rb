@@ -889,54 +889,47 @@ module RSpec::Core
     end
 
     describe ".pending" do
-      before do
-        @group = ExampleGroup.describe
-        @group.pending { fail }
-      end
+      let(:group) { ExampleGroup.describe { pending { fail } } }
 
       it "generates a pending example" do
-        @group.run
-        expect(@group.examples.first).to be_pending
+        group.run
+        expect(group.examples.first).to be_pending
       end
 
       it "sets the pending message" do
-        @group.run
-        expect(@group.examples.first.metadata[:execution_result][:pending_message]).to eq(RSpec::Core::Pending::NO_REASON_GIVEN)
+        group.run
+        expect(group.examples.first.metadata[:execution_result][:pending_message]).to eq(RSpec::Core::Pending::NO_REASON_GIVEN)
       end
     end
 
     describe ".skip" do
-      before do
-        @group = ExampleGroup.describe
-        @group.skip("skip this") { }
-      end
+      let(:group) { ExampleGroup.describe { skip("skip this") { } } }
 
       it "generates a skipped example" do
-        @group.run
-        expect(@group.examples.first).to be_skipped
+        group.run
+        expect(group.examples.first).to be_skipped
       end
 
       it "sets the pending message" do
-        @group.run
-        expect(@group.examples.first.metadata[:execution_result][:pending_message]).to eq(RSpec::Core::Pending::NO_REASON_GIVEN)
+        group.run
+        expect(group.examples.first.metadata[:execution_result][:pending_message]).to eq(RSpec::Core::Pending::NO_REASON_GIVEN)
       end
     end
 
     %w[xit xspecify xexample].each do |method_name|
       describe ".#{method_name}" do
-        before do
-          @group = ExampleGroup.describe
-          @group.send(method_name, "is pending") { }
-        end
+        let(:group) { ExampleGroup.describe.tap {|x|
+          x.send(method_name, "is pending") { }
+        }}
 
         it "generates a skipped example" do
-          @group.run
-          expect(@group.examples.first).to be_skipped
+          group.run
+          expect(group.examples.first).to be_skipped
         end
 
         it "sets the pending message" do
-          @group.run
-          expect(@group.examples.first.metadata[:execution_result][:pending_message]).to eq("Temporarily skipped with #{method_name}")
+          group.run
+          expect(group.examples.first.metadata[:execution_result][:pending_message]).to eq("Temporarily skipped with #{method_name}")
         end
       end
     end
